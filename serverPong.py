@@ -1,14 +1,44 @@
 import random
 from socket import *
+import time
+import threading
 
-serverSocket = socket(AF_INET, SOCK_DGRAM)
-serverSocket.bind(('127.0.0.1', 12000))
+serverSocket = socket(AF_INET, SOCK_STREAM)
+serverSocket.bind(("localhost", 12000))
+serverSocket.listen(1)
 mx = my = 0
 direction = "se"
+seguir = False
 
+
+def multiJugador(*args):
+    conn = args[0]
+    addr = args[1]
+    try:
+        print("conexion con {}.".format(addr))
+        conn.send("Se conecto jugador nuevo".encode('UTF-8'))
+        while True:
+            datos = conn.recv(4096)
+            if datos:
+                print("recibido: {}".format(datos.decode('utf-8')))
+                print("jugador "+str(addr))
+            else:
+                print("prueba")
+                break
+    finally:
+        conn.close()
+
+
+while (seguir == False):
+	con, address = serverSocket.accept()
+	threading.Thread(target=multiJugador,args=(con,address)).start()
+	#a = message.decode("utf-8").split(",")
+	#print (str(a[0]))
+	#serverSocket.sendto(message,address)
+	
+		
 while True:
-	message, address = serverSocket.recvfrom(1024)
-	message = ""
+	#message, address = serverSocket.recvfrom(1024)
 	if direction == "se":
 		mx += 10
 		my +=10
@@ -40,4 +70,5 @@ while True:
 			direction = "no"
 	#message = message.upper()
 	message = str.encode(str(mx)+","+str(my)+","+direction)
-	serverSocket.sendto(message, address)
+	print (message.decode("utf-8"))
+
