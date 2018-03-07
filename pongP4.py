@@ -7,12 +7,12 @@ from tkinter import messagebox
 import socket
 
 
-screen = pygame.display.set_mode((600,600))
+screen = pygame.display.set_mode((900,600))
 clock = pygame.time.Clock()
 Tk().wm_withdraw()
 
 class Meteoro(pygame.sprite.Sprite):
-
+	direction = "se"
 	def __init__(self, image, position):
 		pygame.sprite.Sprite.__init__(self)
 		self.image =  pygame.image.load(image)
@@ -20,15 +20,15 @@ class Meteoro(pygame.sprite.Sprite):
 		scale = 0.25
 		self.image = pygame.transform.scale(self.image, (int(w*scale), int(h*scale)))
 		self.rect = self.image.get_rect()
-		self.mx = 0
-		self.my = 0
+		self.mx = 300
+		self.my = 90
 		self.direction = "se"
 
 	def update(self,deltat):
 		if self.direction == "se":
 			self.mx += 10
 			self.my +=10
-			if self.mx >=568:
+			if self.mx >=868:
 				self.direction = "so"
 			elif self.my>=568:
 				message = "02,ne"
@@ -38,7 +38,7 @@ class Meteoro(pygame.sprite.Sprite):
 		elif self.direction == "ne" :
 			self.mx+=10
 			self.my-=10
-			if self.mx>=568:
+			if self.mx>=868:
 				self.direction = "no"
 			elif self.my<=0:
 				self.direction = "se"
@@ -80,10 +80,10 @@ class Jugador(pygame.sprite.Sprite):
 		self.rect.center = (self.mx, self.my)
 
 rect = screen.get_rect()
-meteoro = Meteoro('bola.png',(0,40))
+meteoro = Meteoro('bola.png',(50,90))
 player1 = Jugador('player1.png',35,590)
 player2 = Jugador('player2.png',10,60)
-player4 = Jugador('player3.png',590,35)
+player4 = Jugador('player3.png',890,35)
 player3 = Jugador('player4.png',30,10)
 grupo = pygame.sprite.RenderPlain(player1,player2,player3,player4,meteoro)
 screen.fill((0,0,0))
@@ -129,16 +129,17 @@ while True:
 			
 		elif event.key == K_SPACE: sys.exit(0)
 
-	if meteoro.my == 568 and (meteoro.mx +618 >= player1.mx >= meteoro.mx) :
-		if meteoro.direction == "se":
-			meteoro.direction = "ne"
-		elif meteoro.direction == "so":
-			meteoro.directionn = "no"
+	if meteoro.mx == 860 and (meteoro.my +85 >= player4.my >= meteoro.my-85) :
+		if meteoro.direction == "ne":
+			meteoro.direction = "no"
+			meteoro.my+=20
+		elif meteoro.direction == "se":
+			meteoro.directionn = "so"
+			meteoro.my+=20
 
-	elif meteoro.my == 568 and not (meteoro.mx +618 >= player1.mx >= meteoro.mx) :
-		messagebox.showinfo('Perdiste','ok')
-		meteoro.mx = 0
-		meteoro.my = 0
+	elif meteoro.mx == 860 and not (meteoro.my +85 >= player4.my >= meteoro.my-85) :
+		player4.mx = 0
+		player4.my = 2000
 
 	screen.fill((0,0,0))
 	grupo.update(deltat)

@@ -7,28 +7,28 @@ from tkinter import messagebox
 import socket
 
 
-screen = pygame.display.set_mode((600,600))
+screen = pygame.display.set_mode((900,600))
 clock = pygame.time.Clock()
 Tk().wm_withdraw()
 
 class Meteoro(pygame.sprite.Sprite):
 
+	direction = "se"
 	def __init__(self, image, position):
 		pygame.sprite.Sprite.__init__(self)
 		self.image =  pygame.image.load(image)
-		w,h = self.image.get_size()
+		self.w,self.h = self.image.get_size()
 		scale = 0.25
-		self.image = pygame.transform.scale(self.image, (int(w*scale), int(h*scale)))
+		self.image = pygame.transform.scale(self.image, (int(self.w*scale), int(self.h*scale)))
 		self.rect = self.image.get_rect()
-		self.mx = 0
-		self.my = 0
-		self.direction = "se"
+		self.mx = 300
+		self.my = 90
 
 	def update(self,deltat):
 		if self.direction == "se":
 			self.mx += 10
 			self.my +=10
-			if self.mx >=568:
+			if self.mx >=868:
 				self.direction = "so"
 			elif self.my>=568:
 				message = "01,ne"
@@ -38,7 +38,7 @@ class Meteoro(pygame.sprite.Sprite):
 		elif self.direction == "ne" :
 			self.mx+=10
 			self.my-=10
-			if self.mx>=568:
+			if self.mx>=868:
 				self.direction = "no"
 			elif self.my<=0:
 				self.direction = "se"
@@ -54,7 +54,7 @@ class Meteoro(pygame.sprite.Sprite):
 			self.my +=10
 			if self.mx<=0:
 				self.direction = "se"
-			elif self.my>=568:		
+			elif self.my>=568:
 				message = "01,no"
 				clientSocket.send(message.encode('utf-8'))
 				self.direction = "no"
@@ -68,9 +68,9 @@ class Jugador(pygame.sprite.Sprite):
 	def __init__(self, image, x, y):
 		pygame.sprite.Sprite.__init__(self)
 		self.image =  pygame.image.load(image)
-		w,h = self.image.get_size()
+		self.w,self.h = self.image.get_size()
 		scale = 0.10
-		self.image = pygame.transform.scale(self.image, (int(w*scale), int(h*scale)))
+		self.image = pygame.transform.scale(self.image, (int(self.w*scale), int(self.h*scale)))
 		self.rect = self.image.get_rect()
 		self.mx = x
 		self.my = y
@@ -80,18 +80,21 @@ class Jugador(pygame.sprite.Sprite):
 		self.rect.center = (self.mx, self.my)
 
 rect = screen.get_rect()
-meteoro = Meteoro('bola.png',(0,40))
+meteoro = Meteoro('bola.png',(50,90))
 player1 = Jugador('player1.png',35,590)
-
 player2 = Jugador('player2.png',10,60)
-player3 = Jugador('player3.png',590,35)
-player4 = Jugador('player4.png',30,10)
+player4 = Jugador('player3.png',890,35)
+player3 = Jugador('player4.png',30,10)
 grupo = pygame.sprite.RenderPlain(player1,player2,player3,player4,meteoro)
 screen.fill((0,0,0))
 grupo.draw(screen)
 pygame.display.flip()
 clientSocket = socket.socket()
 clientSocket.connect(("127.0.0.1", 12000))
+print("My width: ", str(int(player1.w * 0.10)))
+print("My height: ", str(int(player1.h * 0.10))) 
+print("Meteor width: ", str(int(meteoro.w * 0.25)))
+print("Meteor height: ", str(int(meteoro.h * 0.25))) 
 
 
 
@@ -119,16 +122,19 @@ while True:
 		#elif event.key == K_k: player3.my += 20
 		elif event.key == K_SPACE: sys.exit(0)
 
-	if meteoro.my == 568 and (meteoro.mx +618 >= player1.mx >= meteoro.mx) :
+	if meteoro.my == 560 and (meteoro.mx + 85>= player1.mx >= meteoro.mx -85) :
+		print(meteoro.direction)
 		if meteoro.direction == "se":
 			meteoro.direction = "ne"
+			meteoro.mx+=20
 		elif meteoro.direction == "so":
-			meteoro.directionn = "no"
+			meteoro.direction = "no"
+			meteoro.mx-=20
+		print(meteoro.direction)
 
-	elif meteoro.my == 568 and not (meteoro.mx +618 >= player1.mx >= meteoro.mx) :
-		messagebox.showinfo('Perdiste','ok')
-		meteoro.mx = 0
-		meteoro.my = 0
+	elif meteoro.my == 560 and not (meteoro.mx +85 >= player1.mx >= meteoro.mx-85) :
+		player1.mx = 0
+		player1.my = 2000
 
 	screen.fill((0,0,0))
 	grupo.update(deltat)
