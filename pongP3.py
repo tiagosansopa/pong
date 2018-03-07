@@ -91,13 +91,13 @@ grupo.draw(screen)
 pygame.display.flip()
 clientSocket = socket.socket()
 clientSocket.connect(("127.0.0.1", 12000))
-data = "p1ready"
-clientSocket.send(data.encode('utf-8'))
 
 while True:
 	deltat = clock.tick(30)
 	#data, server = clientSocket.recvfrom(1024)
 	#mx,my,dire = data.decode("utf-8").split(",")
+	m = "03,"+str(player3.mx)+","+str(player3.my)
+	clientSocket.send(m.encode('utf-8'))
 	
 	for event in pygame.event.get():
 		if not hasattr(event, 'key'): continue
@@ -121,12 +121,9 @@ while True:
 		#	clientSocket.send(m.encode('utf-8'))
 		if event.key == K_j: 
 			player3.mx -= 20
-			m = "03,"+str(player3.mx)+","+str(player3.my)
-			clientSocket.send(m.encode('utf-8'))
+			
 		elif event.key == K_l: 
 			player3.mx += 20
-			m = "03,"+str(player3.mx)+","+str(player3.my)
-			clientSocket.send(m.encode('utf-8'))
 		#elif event.key == K_i: player3.my -= 20
 		#elif event.key == K_k: player3.my += 20
 		elif event.key == K_SPACE: sys.exit(0)
@@ -146,3 +143,20 @@ while True:
 	grupo.update(deltat)
 	grupo.draw(screen)
 	pygame.display.flip()
+	update = clientSocket.recv(4096).decode('UTF-8').split("|")
+	u=0
+	for i in update:
+		x = i .split(",")
+
+		if len(x) == 2:
+			if(u==0):
+				player1.mx=int(x[0])
+				player1.my=int(x[1])
+			elif(u==1):
+				player2.mx=int(x[0])
+				player2.my=int(x[1])
+			elif(u==3):
+				player4.mx=int(x[0])
+				player4.my=int(x[1])
+		u+=1
+

@@ -82,6 +82,7 @@ class Jugador(pygame.sprite.Sprite):
 rect = screen.get_rect()
 meteoro = Meteoro('bola.png',(0,40))
 player1 = Jugador('player1.png',35,590)
+
 player2 = Jugador('player2.png',10,60)
 player3 = Jugador('player3.png',590,35)
 player4 = Jugador('player4.png',30,10)
@@ -91,27 +92,25 @@ grupo.draw(screen)
 pygame.display.flip()
 clientSocket = socket.socket()
 clientSocket.connect(("127.0.0.1", 12000))
-data = "p1ready"
-clientSocket.send(data.encode('utf-8'))
+
 
 
 while True:
 	deltat = clock.tick(30)
 	#data, server = clientSocket.recvfrom(1024)
 	#mx,my,dire = data.decode("utf-8").split(",")
-	
+	m = "01,"+str(player1.mx)+","+str(player1.my)
+	clientSocket.send(m.encode('utf-8'))
+
 	for event in pygame.event.get():
 		if not hasattr(event, 'key'): continue
 		down = event.type == KEYDOWN
 		if event.key == K_LEFT: 
 			player1.mx -= 20
-			m = "01,"+str(player1.mx)+","+str(player1.my)
-			clientSocket.send(m.encode('utf-8'))
 			
 		elif event.key == K_RIGHT: 
 			player1.mx += 20
-			m = "01,"+str(player1.mx)+","+str(player1.my)
-			clientSocket.send(m.encode('utf-8'))
+		
 		#elif event.key == K_UP: player2.my -= 20
 		#elif event.key == K_DOWN: player2.my += 20
 		#elif event.key == K_j: player4.mx -= 20
@@ -135,3 +134,18 @@ while True:
 	grupo.update(deltat)
 	grupo.draw(screen)
 	pygame.display.flip()
+	update = clientSocket.recv(4096).decode('UTF-8').split("|")
+	u=0
+	for i in update:
+		x = i .split(",")
+		if len(x) == 2:
+			if(u==1):
+				player2.mx=int(x[0])
+				player2.my=int(x[1])
+			elif(u==2):
+				player3.mx=int(x[0])
+				player3.my=int(x[1])
+			elif(u==3):
+				player4.mx=int(x[0])
+				player4.my=int(x[1])
+		u+=1
